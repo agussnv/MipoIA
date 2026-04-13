@@ -1,0 +1,84 @@
+from skills.notas import añadir_nota, ver_notas
+from skills.configuracion import cargar_config
+from skills.historial import guardar_historial, ver_historial
+from skills.temporizador import iniciar_temporizador
+from skills.cerebro import preguntar
+from skills.voz import escuchar, hablar, esperar_wake_word
+import time
+import traceback
+
+TIMEOUT_SESION = 10
+
+robot = {}
+
+def cargar_info():
+    global robot
+    robot = cargar_config()
+
+def ejecutar_herramienta(tool_name, params):
+    if tool_name == "temporizador":
+        iniciar_temporizador(params["segundos"])
+    elif tool_name == "guardar_nota":
+        añadir_nota(params["text"])
+        hablar("Nota guardada.")
+    elif tool_name == "ver_notas":
+        ver_notas()
+        hablar("Te muestro tus notas.")
+    elif tool_name == "ver_historial":
+        ver_historial()
+        hablar("Te muestro el historial.")
+    elif tool_name == "consultar_bateria":
+        if robot["bateria"] < 20:
+            hablar(f"Tengo {robot['bateria']}% de batería, necesito carga")
+        else:
+            hablar(f"Tengo {robot['bateria']}% de batería")
+        
+
+def responder(comando):
+    if "historial" not in comando:
+        guardar_historial(comando)
+    
+    try:
+        result = preguntar(comando)
+
+        if result["tipo"] == "herramienta":
+            ejecutar_herramienta(result["nombre"], result["params"])
+        else:
+            hablar(result["contenido"])
+    except Exception as e:
+        traceback.print_exc()
+
+
+def sesion():
+    hablar("Te escucho")
+    ultimo_comando = time.time()
+    
+    while True:
+        try:
+            comando = escuchar()
+            
+            if comando:
+                ultimo_comando = time.time()
+                responder(comando)
+            
+            if time.time() - ultimo_comando > TIMEOUT_SESION:
+                hablar("Me quedo a la espera")
+                return
+
+        except Exception as e:
+            traceback.print_exc()
+            return
+
+
+cargar_info()
+
+
+while True:
+    try:
+        esperar_wake_word()
+        sesion()
+    except KeyboardInterrupt:
+        hablar("Hasta luego.")
+        break
+    except Exception as e:
+        traceback.print_exc()
