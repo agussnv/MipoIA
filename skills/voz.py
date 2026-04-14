@@ -19,6 +19,8 @@ WAKE_WORD_PATH = os.path.join(_base, "resources", "models", "alexa_v0.1.onnx")
 WAKE_WORD_UMBRAL=0.5
 TIMEOUT=10
 
+mipo_hablando = False
+
 modelo_whisper = whisper.load_model("small") # Carga el modelo que utilizará: base -> small -> medium...
 pygame.mixer.init() # Inicializa el sistema de audio para poder reproducir más adelante.
 
@@ -85,7 +87,8 @@ def escuchar() -> str: # -> str es solamente de tipo informativo para quien lea 
                     print("Procesando...")
                     break
             else:
-                segundos_timeout += 0.1
+                if not mipo_hablando:
+                    segundos_timeout += 0.1
                 if segundos_timeout >= TIMEOUT:
                     return ""
 
@@ -101,6 +104,9 @@ def escuchar() -> str: # -> str es solamente de tipo informativo para quien lea 
     return transcripcion
 
 def hablar(texto: str):
+    global mipo_hablando
+    mipo_hablando = True
+
     print(f"Mipo: {texto}")
     
     async def _generar():
@@ -118,3 +124,4 @@ def hablar(texto: str):
         pygame.time.Clock().tick(10) # Entra en bucle hasta terminar de estar ocupado. Lo verifica cada 100ms.
     
     os.remove(archivo)
+    mipo_hablando = False

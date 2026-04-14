@@ -3,7 +3,7 @@ from skills.configuracion import cargar_config
 from skills.historial import guardar_historial, ver_historial
 from skills.temporizador import iniciar_temporizador
 from skills.cerebro import preguntar
-from skills.voz import escuchar, hablar, esperar_wake_word
+from skills.voz import escuchar, hablar, esperar_wake_word, mipo_hablando
 import time
 import traceback
 
@@ -51,17 +51,21 @@ def responder(comando):
 
 def sesion():
     hablar("Te escucho")
-    ultimo_comando = time.time()
+    TIMEOUT = 10
+    segundos_inactividad = 0
     
     while True:
         try:
             comando = escuchar()
             
             if comando:
-                ultimo_comando = time.time()
+                segundos_inactividad = 0
                 responder(comando)
+                print("AHORA CONTINUA")
+            elif not mipo_hablando:
+                segundos_inactividad += TIMEOUT
             
-            if time.time() - ultimo_comando > TIMEOUT_SESION:
+            if segundos_inactividad >= TIMEOUT_SESION:
                 hablar("Me quedo a la espera")
                 return
 
