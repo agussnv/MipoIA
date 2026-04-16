@@ -60,6 +60,24 @@ HERRAMIENTAS = [
             "type": "object",
             "properties": {}
         }
+    },
+    {
+        "name": "enviar_mail",
+        "description":"""
+        Envía un mail. Úsala cuando el usuario quiera enviar un correo electrónico. IMPORTANTE: antes de ejecutar,
+        confirma siempre el mensaje y el destinatario con el usuario, sin poner texto en negrita ni nada, solo diciendo el contenido de cada parte,
+        ya que lo leerás en voz alta. El usuario dirá un nombre de contacto, no un email — pasa el nombre tal como lo diga el usuario en el campo recipients,
+        Python lo resolverá automáticamente buscando en la agenda.. Recuerda que el asunto lo debes pensar tu automáticamente en base al mensaje del usuario.
+        """,
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "recipients": { "type": "string", "description": "Dirección o direcciones de email destinatarias" },
+                "body": { "type": "string", "description": "El mensaje que el usuario quiere enviar." },
+                "subject": { "type": "string", "description": "Asunto del mail, generado automáticamente a partir del body." }
+            },
+            "required": ["recipients", "body", "subject"]
+        }
     }
 ]
 

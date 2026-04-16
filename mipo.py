@@ -4,7 +4,8 @@ from skills.historial import guardar_historial, ver_historial
 from skills.temporizador import iniciar_temporizador
 from skills.cerebro import preguntar
 from skills.voz import escuchar, hablar, esperar_wake_word, mipo_hablando
-import time
+from skills.emails import send_email
+from skills.contactos import buscar_contacto
 import traceback
 
 TIMEOUT_SESION = 10
@@ -32,6 +33,12 @@ def ejecutar_herramienta(tool_name, params):
             hablar(f"Tengo {robot['bateria']}% de batería, necesito carga")
         else:
             hablar(f"Tengo {robot['bateria']}% de batería")
+    elif tool_name == "enviar_mail":
+        email = buscar_contacto(params["recipients"])
+        if email:
+            send_email(email['email'], params["body"], params["subject"])
+        else:
+            hablar(f"No encontré el contacto {params['recipients']} en tu lista de contactos.")
         
 
 def responder(comando):
@@ -61,7 +68,6 @@ def sesion():
             if comando:
                 segundos_inactividad = 0
                 responder(comando)
-                print("AHORA CONTINUA")
             elif not mipo_hablando:
                 segundos_inactividad += TIMEOUT
             
