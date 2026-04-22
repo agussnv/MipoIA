@@ -12,6 +12,7 @@ Respondes siempre en español (a menos que te hablen en otro idioma), de forma b
 MÁXIMO 2-3 frases por response - eres un asistente de voz, no un ensayista. Pero si te hacen una pregunta, responde de la forma más breve posible.
 Bajo ningún concepto, utilices emojis.
 Si no entiendes algo, pides aclaración en una sola frase.
+Puedes ayudar con cualquier tema: programación, electrónica, cocina, matemáticas, o lo que sea que el usuario necesite.
 """
 
 HERRAMIENTAS = [
@@ -63,11 +64,15 @@ HERRAMIENTAS = [
     },
     {
         "name": "enviar_mail",
-        "description":"""
+        "description":
+        """
         Envía un mail. Úsala cuando el usuario quiera enviar un correo electrónico. IMPORTANTE: antes de ejecutar,
         confirma siempre el mensaje y el destinatario con el usuario, sin poner texto en negrita ni nada, solo diciendo el contenido de cada parte,
-        ya que lo leerás en voz alta. El usuario dirá un nombre de contacto, no un email — pasa el nombre tal como lo diga el usuario en el campo recipients,
-        Python lo resolverá automáticamente buscando en la agenda.. Recuerda que el asunto lo debes pensar tu automáticamente en base al mensaje del usuario.
+        ya que lo leerás en voz alta. Recuerda que el asunto lo debes generar tú automáticamente en base al mensaje del usuario.
+        
+        Para el campo recipients hay dos casos:
+        - Si el usuario quiere responder a un correo leído previamente, usa el email completo del remitente que tienes en el historial de conversación.
+        - Si el usuario quiere enviar a un contacto de su agenda, pasa el nombre tal como lo diga el usuario y Python lo resolverá automáticamente.
         """,
         "input_schema": {
             "type": "object",
@@ -77,6 +82,14 @@ HERRAMIENTAS = [
                 "subject": { "type": "string", "description": "Asunto del mail, generado automáticamente a partir del body." }
             },
             "required": ["recipients", "body", "subject"]
+        }
+    },
+    {
+        "name": "ver_correos",
+        "description": "Obtiene y resume los correos recibidos hoy según el asunto. Úsala cuando el usuario quiera saber qué emails ha recibido hoy, cuántos correos tiene, un resumen de su bandeja de entrada o qué le han escrito.",
+        "input_schema": {
+            "type": "object",
+            "properties": {}
         }
     }
 ]
@@ -88,6 +101,9 @@ def preguntar(mensaje_usuario):
         "role":"user",
         "content": mensaje_usuario
     })
+    
+    # if len(historial_conversacion) > 20:
+    #     historial_conversacion = historial_conversacion[-10:]
 
     response = cliente.messages.create(
         model="claude-haiku-4-5",

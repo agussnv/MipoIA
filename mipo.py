@@ -2,9 +2,9 @@ from skills.notas import añadir_nota, ver_notas
 from skills.configuracion import cargar_config
 from skills.historial import guardar_historial, ver_historial
 from skills.temporizador import iniciar_temporizador
-from skills.cerebro import preguntar
+from skills.cerebro import preguntar, historial_conversacion
 from skills.voz import escuchar, hablar, esperar_wake_word, mipo_hablando
-from skills.emails import send_email
+from skills.emails import send_email, obtener_correos_hoy
 from skills.contactos import buscar_contacto
 import traceback
 
@@ -34,13 +34,34 @@ def ejecutar_herramienta(tool_name, params):
         else:
             hablar(f"Tengo {robot['bateria']}% de batería")
     elif tool_name == "enviar_mail":
-        email = buscar_contacto(params["recipients"])
+        destinatario = params["recipients"]
+        print(destinatario)
+        if "@" in destinatario:
+            email = destinatario
+        else:
+            email = buscar_contacto(params["recipients"])
+            email = email["email"]
         if email:
-            send_email(email['email'], params["body"], params["subject"])
+            send_email(email, params["body"], params["subject"])
         else:
             hablar(f"No encontré el contacto {params['recipients']} en tu lista de contactos.")
+    elif tool_name == "ver_correos":
+        correos = obtener_correos_hoy()
+        if isinstance(correos, str):
+            hablar(correos)
+        else:
+            contenido = ""
+            for i, correo in enumerate(correos):
+                contenido += f"Correo {i+1}:\nDe: {correo["remitente"]}\nAsunto: {correo["asunto"]}\n\n"
+                
+            resultado = preguntar(
+                f"Tengo {len(correos)} correos de hoy. Haz un resumen MUY breve de cada uno en una sola frase, "
+                f"para escucharlo por voz. Sin listas, sin números, sin formato. "
+                f"Habla de forma natural como si me lo contaras. Aquí están:\n\n{contenido}"
+            )
+                        
+            hablar(resultado["contenido"])
         
-
 def responder(comando):
     if "historial" not in comando:
         guardar_historial(comando)
