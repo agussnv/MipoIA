@@ -107,8 +107,8 @@ El proyecto está en desarrollo activo. Actualmente corre en un ordenador de sob
 ## Roadmap
 
 **Hardware**
-- [ ] Primer prototipo en Raspberry Pi 3
-- [ ] Migración a Raspberry Pi 5 para mayor potencia
+- [ ] Primer prototipo en Raspberry Pi 2
+- [ ] Migración a Raspberry Pi Zero para mayor portabilidad
 - [ ] Diseño de carcasa impresa en 3D — clip o gancho para llevar encima
 - [ ] Gestión de batería LiPo
 - [ ] LED de estado — dormido, escuchando, procesando
@@ -126,14 +126,12 @@ El proyecto está en desarrollo activo. Actualmente corre en un ordenador de sob
 - [ ] Domótica — control de luces, temperatura y dispositivos del hogar (Home Assistant)
 - [ ] Clima — previsión del tiempo en tiempo real
 - [ ] Noticias — resumen de titulares del día
-- [ ] WhatsApp — lectura y envío de mensajes
+- [ ] WhatsApp Business — lectura y envío de mensajes
 
 **Sistema**
 - [ ] App web de administración — gestionar contactos, notas y configuración desde el móvil
 - [ ] Base de datos en lugar de JSON para mayor escalabilidad
 - [ ] App móvil para administración remota
-- [ ] Modo offline completo — sin dependencia de APIs externas
-- [ ] Multi-usuario — perfiles separados con sus propios datos
 
 ---
 
