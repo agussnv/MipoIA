@@ -99,7 +99,7 @@ El proyecto está en desarrollo activo. Actualmente corre en un ordenador de sob
 - Cerebro con tool use — Claude llama a funcionalidades reales, no simula
 
 **Lo que está en progreso**
-- Migración a Raspberry Pi 3 como primer prototipo físico
+- Migración a Raspberry Pi 2 como primer prototipo físico
 - Optimización de latencia end-to-end
 
 ---
@@ -134,11 +134,3 @@ El proyecto está en desarrollo activo. Actualmente corre en un ordenador de sob
 - [ ] App móvil para administración remota
 
 ---
-
-## Origen del proyecto
-
-Mipo empezó como una pregunta: ¿se puede construir un Alexa propio desde cero, aprendiendo a programar al mismo tiempo?
-
-La respuesta es sí. Este repositorio es el resultado de ese proceso — cada funcionalidad construida entendiéndola antes de escribirla, sin copiar soluciones sin comprenderlas.
-
-El objetivo a largo plazo es un gadget físico compacto que quepa en un bolsillo, se enganche a la ropa, y sea tan útil como cualquier asistente comercial — pero completamente personalizable y privado.
