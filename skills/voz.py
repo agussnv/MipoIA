@@ -1,3 +1,11 @@
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pygame")
+warnings.filterwarnings("ignore", category=UserWarning, module="onnxruntime")
+
+import os
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 import sounddevice as sd # Captura el sonido del microfono y lo reproduce
 import numpy as np # Librería matemática para arrays. Cada número es la amplitud de onda
 import scipy.io.wavfile as wav # Guarda el array de números como un archivo .wav
@@ -7,12 +15,11 @@ import pygame # Para reproducir el sonido la voz. Forma más sencilla de hacerlo
 import asyncio # edge_tts es una librería asíncrona. Para que sea asíncrona su espera.
 import openwakeword # para activarse mediante la wake word
 import time
-import os
 import tempfile
 
 SAMPLE_RATE=16000 # mediciones por SEGUNDO que se hace del sonido
 DEVICE=8
-SILENCIO_UMBRAL=1000
+SILENCIO_UMBRAL=1500
 SILENCIO_SEGUNDOS=2
 _base = os.path.dirname(openwakeword.__file__)
 WAKE_WORD_PATH = os.path.join(_base, "resources", "models", "alexa_v0.1.onnx")
@@ -43,7 +50,7 @@ def esperar_wake_word():
         samplerate=SAMPLE_RATE,
         channels=1,
         dtype=np.int16,
-        device=DEVICE,
+        # device=DEVICE,
         blocksize=1280
     ) as stream:
         
@@ -69,7 +76,7 @@ def escuchar() -> str: # -> str es solamente de tipo informativo para quien lea 
     segundos_timeout = 0
     chunk_size = int(SAMPLE_RATE*0.1) # Tamaño de muestras que leemos por 100ms (1600 muestras)
     
-    with sd.InputStream(samplerate=SAMPLE_RATE, channels=1, dtype=np.int16, device=DEVICE) as stream: # abre el micrófono como un stream continuo. No se cierra hasta que no salgamos del bloque (with)
+    with sd.InputStream(samplerate=SAMPLE_RATE, channels=1, dtype=np.int16) as stream: # abre el micrófono como un stream continuo. No se cierra hasta que no salgamos del bloque (with)
         while True:
             chunk, _ = stream.read(chunk_size) # devuelve 2 cosas, el audio (100ms) y estado overflow (si el buffer se llenó). chunk, _ significa: guardame el primer valor en chunk, el segundo no me interesa
             
@@ -96,7 +103,12 @@ def escuchar() -> str: # -> str es solamente de tipo informativo para quien lea 
     
     archivo = tempfile.mktemp(suffix=".wav") # Crea el archivo temporal
     wav.write(archivo, SAMPLE_RATE, audio) # Guarda el audio dentro del archivo, siguiendo la estructura del ratio definido
-    resultado = modelo_whisper.transcribe(archivo, language="es", fp16=False) # Transcribe el archivo a texto
+    resultado = modelo_whisper.transcribe(
+        archivo,
+        language="es",
+        fp16=False,
+        no_speech_threshold=0.8
+    ) # Transcribe el archivo a texto
     os.remove(archivo) # Borra el archivo temporal
     
     transcripcion = resultado["text"].strip() # Elimina de la transcripción los espacios en blanco y saltos de linea en el inicio y final.

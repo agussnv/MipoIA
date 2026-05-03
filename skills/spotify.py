@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import json
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from rapidfuzz import process
+from skills.voz import hablar
 
 load_dotenv()
 
@@ -27,7 +29,8 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 
 # Obtener dispositivos con Spotify abierto
 def devices():
-    result = sp.devices()
+    result = sp.devices()['devices']
+    print(result)
     return result
 
 # Obtener información de la reproducción actual (device, track, artist...)
@@ -47,41 +50,74 @@ def get_info_device():
 
 # Comenzar reproducción
 def start_playback():
-    current = current_playback()
-    if not current['is_playing']:
-        sp.start_playback()
+    if len(devices()) > 0:
+        current = current_playback()
+        if not current or not current['is_playing']:
+            sp.start_playback()
+    hablar("No hay dispositivos activos")
 
 # Pausar reproducción
 def pause_playback():
     current = current_playback()
     if current['is_playing']:    
         sp.pause_playback()
+        hablar("Música pausada")
 
 # Pasar a la siguiente canción
 def next_track():
     sp.next_track()
+    hablar("Hecho")
 
 # Pasar a la anterior canción
 def previous_track():
     sp.previous_track()
+    hablar("Hecho")
 
 # Setear volumen (en smartphone no funciona)
 def set_volume(volume_percent):
     device = get_info_device()
-    if device['type'] == 'Computer':
+    if device['type'] == 'Computer' or device['type'] == "TV":
         sp.volume(volume_percent)
 
-# Pasar de un dispositivo a otro la reproducción. Lo ideal es utilizar esto luego de haber
-# utilizado devices() y preguntarle al usuario a cual de los activos desea pasar la canción.
-def transfer_playback(device_name):
-    # Considero que no es la mejor alternativa, ya que debe coincidir el nombre exacto, y
-    # al estar por voz, puede tener fallos y nunca encontrarlo. Buscaría la forma de hacerlo
-    # que Mipo lo buscase directamente desde el JSON que devuelve devices()
+def search_device_alias(name):
     if os.path.exists(ARCHIVO):
         with open(ARCHIVO, "r") as f:
             devices = json.load(f)
-            result = next((item for item in devices if item['name'] == device_name), None)
-    if result:
-        sp.transfer_playback(result['id'])
+            for d in devices:
+                for alias in d['alias']:
+                    if alias.lower() == name.lower():
+                        print(d)
+                        return d['name']
+    return None
+
+def search_device_fuzzy(name, devices_spotify):
+    result = process.extractOne(name, devices_spotify)
+    print(result)
+    if result and result[1] > 55:
+        return result[0]
+    return None
+
+def find_device(name):
+    device_name = search_device_alias(name)
+    if device_name:
+        return device_name
     
-devices()
+    devices_spotify = devices()
+    names = [d['name'] for d in devices_spotify]
+    device_name = search_device_fuzzy(name, names)
+    if device_name:
+        return device_name
+    
+    return None
+    
+def transfer_playback(name):
+    name = find_device(name)
+    if not name:
+        hablar(f"El")
+        return
+    devices_spotify = devices()
+    device = next((d for d in devices_spotify if d['name'] == name), None)
+    if device:
+        sp.transfer_playback(device['id'])
+    else:
+        hablar(f"El dispositivo {name} no está activo en este momento")

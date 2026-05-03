@@ -91,6 +91,60 @@ HERRAMIENTAS = [
             "type": "object",
             "properties": {}
         }
+    },
+    {
+        "name": "cambiar_dispositivo_spotify",
+        "description": "Transfiere la reproducción de Spotify a otro dispositivo. Úsala cuando el usuario quiera cambiar dónde suena la música, moverla a otra habitación o dispositivo.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "name": { "type": "string", "description": "Nombre o alias del dispositivo tal como lo diga el usuario. Ej: sala, habitación, móvil." }
+            },
+            "required": ["name"]
+        }
+    },
+    {
+        "name": "setear_volumen_spotify",
+        "description": "Cambia el volumen de Spotify. Úsala cuando el usuario quiera subir, bajar o ajustar el volumen de la música. Si dice 'sube el volumen' o 'bájalo' sin dar un número, estima un valor razonable.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "percent": { "type": "integer", "description": "Volumen entre 0 y 100." }
+            },
+            "required": ["percent"]
+        }
+    },
+    {
+        "name": "pause_spotify",
+        "description": "Pausa la reproducción de Spotify. Úsala cuando el usuario quiera pausar, detener o parar la música.",
+        "input_schema": {
+            "type": "object",
+            "properties": {}
+        }
+    },
+    {
+        "name": "start_spotify",
+        "description": "Reanuda la reproducción de Spotify. Úsala cuando el usuario quiera reproducir, continuar o reanudar la música.",
+        "input_schema": {
+            "type": "object",
+            "properties": {}
+        }
+    },
+    {
+        "name": "next_track_spotify",
+        "description": "Salta a la siguiente canción en Spotify. Úsala cuando el usuario quiera pasar a la siguiente canción, saltarla o que suene la siguiente.",
+        "input_schema": {
+            "type": "object",
+            "properties": {}
+        }
+    },
+    {
+        "name": "previous_track_spotify",
+        "description": "Vuelve a la canción anterior en Spotify. Úsala cuando el usuario quiera volver atrás, escuchar la canción anterior o repetir la que sonaba antes.",
+        "input_schema": {
+            "type": "object",
+            "properties": {}
+        }
     }
 ]
 

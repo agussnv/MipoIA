@@ -6,6 +6,7 @@ from skills.cerebro import preguntar, historial_conversacion
 from skills.voz import escuchar, hablar, esperar_wake_word, mipo_hablando
 from skills.emails import send_email, obtener_correos_hoy
 from skills.contactos import buscar_contacto
+from skills.spotify import transfer_playback, set_volume, pause_playback, start_playback, next_track, previous_track
 import traceback
 
 TIMEOUT_SESION = 10
@@ -61,6 +62,18 @@ def ejecutar_herramienta(tool_name, params):
             )
                         
             hablar(resultado["contenido"])
+    elif tool_name == "cambiar_dispositivo_spotify":
+        transfer_playback(params["name"])
+    elif tool_name == "setear_volumen_spotify":
+        set_volume(params["percent"])
+    elif tool_name == "pause_spotify":
+        pause_playback()
+    elif tool_name == "start_spotify":
+        start_playback()
+    elif tool_name == "next_track_spotify":
+        next_track()
+    elif tool_name == "previous_track_spotify":
+        previous_track()      
         
 def responder(comando):
     if "historial" not in comando:
@@ -75,7 +88,6 @@ def responder(comando):
             hablar(result["contenido"])
     except Exception as e:
         traceback.print_exc()
-
 
 def sesion():
     hablar("Te escucho")
