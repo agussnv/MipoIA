@@ -50,6 +50,7 @@ nvidia-nvshmem-cu13==3.4.5
 nvidia-nvtx==13.0.85
 onnxruntime==1.24.4
 openai-whisper==20250625
+openai
 openwakeword==0.4.0
 packaging==26.0
 propcache==0.4.1

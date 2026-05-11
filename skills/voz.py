@@ -9,7 +9,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = ""
 import sounddevice as sd # Captura el sonido del microfono y lo reproduce
 import numpy as np # Librería matemática para arrays. Cada número es la amplitud de onda
 import scipy.io.wavfile as wav # Guarda el array de números como un archivo .wav
-import whisper # Modelo de transcripción de voz a texto
+# import whisper # Modelo de transcripción de voz a texto
+import openai # ← CAMBIADO: en lugar de whisper
 import edge_tts # De texto a voz. Envía el texto a sus servidores y devuelve .mp3
 import pygame # Para reproducir el sonido la voz. Forma más sencilla de hacerlo con PyGame.
 import asyncio # edge_tts es una librería asíncrona. Para que sea asíncrona su espera.
@@ -28,7 +29,7 @@ TIMEOUT=10
 
 mipo_hablando = False
 
-modelo_whisper = whisper.load_model("small") # Carga el modelo que utilizará: base -> small -> medium...
+# modelo_whisper = whisper.load_model("small") # Carga el modelo que utilizará: base -> small -> medium...
 pygame.mixer.init() # Inicializa el sistema de audio para poder reproducir más adelante.
 
 def hay_voz(audio_chunk): # audio_chunk son 100ms de audio, un conjunto de números que representa la onda de sonido
@@ -100,18 +101,21 @@ def escuchar() -> str: # -> str es solamente de tipo informativo para quien lea 
                     return ""
 
     audio = np.concatenate(fragmentos) # Une todos los chunks grabados.
+        
+    archivo = tempfile.mktemp(suffix=".wav")
+    wav.write(archivo, SAMPLE_RATE, audio)
     
-    archivo = tempfile.mktemp(suffix=".wav") # Crea el archivo temporal
-    wav.write(archivo, SAMPLE_RATE, audio) # Guarda el audio dentro del archivo, siguiendo la estructura del ratio definido
-    resultado = modelo_whisper.transcribe(
-        archivo,
-        language="es",
-        fp16=False,
-        no_speech_threshold=0.8
-    ) # Transcribe el archivo a texto
-    os.remove(archivo) # Borra el archivo temporal
+        cliente_openai = openai.OpenAI()  # ← aquí, cuando ya está cargado el .env
+    # ← CAMBIADO: Whisper API en lugar de Whisper local
+    with open(archivo, "rb") as f:
+        resultado = cliente_openai.audio.transcriptions.create(
+            model="whisper-1",
+            file=f,
+            language="es"
+        )
+    os.remove(archivo)
     
-    transcripcion = resultado["text"].strip() # Elimina de la transcripción los espacios en blanco y saltos de linea en el inicio y final.
+    transcripcion = resultado.text.strip()
     print(f"Tú: {transcripcion}")
     return transcripcion
 
