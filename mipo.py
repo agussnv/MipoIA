@@ -13,6 +13,14 @@ TIMEOUT_SESION = 10
 
 robot = {}
 
+SKILLS_PENDIENTES = {
+    "start_spotify": lambda respuesta: preguntar(
+        f"El usuario quiere reproducir música. Dijo: '{respuesta}'. "
+        f"Llama a la herramienta start_spotify con el nombre del dispositivo que mencionó."
+    ),
+    "transfer_playback": lambda respuesta: transfer_playback(respuesta)
+}
+
 def cargar_info():
     global robot
     robot = cargar_config()
@@ -78,16 +86,29 @@ def ejecutar_herramienta(tool_name, params):
 def responder(comando):
     if "historial" not in comando:
         guardar_historial(comando)
-    
     try:
         result = preguntar(comando)
 
         if result["tipo"] == "herramienta":
-            ejecutar_herramienta(result["nombre"], result["params"])
+            pendiente = ejecutar_herramienta(result["nombre"], result["params"])
+            # Siempre informar a Claude del resultado antes de salir
+            historial_conversacion.append({
+                "role": "user",
+                "content": [
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": result["id"],
+                        "content": "Pendiente de respuesta del usuario." if pendiente else "Hecho."
+                    }
+                ]
+            })
+            return pendiente # Esto puede ser None (flujo normal) o {"pendiente":True...}
         else:
             hablar(result["contenido"])
+            return None
     except Exception as e:
         traceback.print_exc()
+        return None
 
 def sesion():
     hablar("Te escucho")
@@ -100,7 +121,20 @@ def sesion():
             
             if comando:
                 segundos_inactividad = 0
-                responder(comando)
+                pendiente = responder(comando)
+                
+                if pendiente and pendiente.get("pendiente"):
+                    hablar(pendiente['pregunta'])
+                    respuesta = escuchar()
+                    
+                    if respuesta:
+                        skill_fn = SKILLS_PENDIENTES.get(pendiente['skill'])
+                        if skill_fn:
+                            resultado = skill_fn(respuesta)
+                            if resultado and resultado["tipo"] == "herramienta":
+                                ejecutar_herramienta(resultado["nombre"], resultado["params"])
+                        else:
+                            hablar("No se como procesar esta solicitud")
             elif not mipo_hablando:
                 segundos_inactividad += TIMEOUT
             
