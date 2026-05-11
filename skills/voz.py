@@ -105,7 +105,7 @@ def escuchar() -> str: # -> str es solamente de tipo informativo para quien lea 
     archivo = tempfile.mktemp(suffix=".wav")
     wav.write(archivo, SAMPLE_RATE, audio)
     
-        cliente_openai = openai.OpenAI()  # ← aquí, cuando ya está cargado el .env
+    cliente_openai = openai.OpenAI()  # ← aquí, cuando ya está cargado el .env
     # ← CAMBIADO: Whisper API en lugar de Whisper local
     with open(archivo, "rb") as f:
         resultado = cliente_openai.audio.transcriptions.create(
