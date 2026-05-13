@@ -18,8 +18,8 @@ import openwakeword # para activarse mediante la wake word
 import time
 import tempfile
 
-SAMPLE_RATE=16000 # mediciones por SEGUNDO que se hace del sonido
-DEVICE=8
+SAMPLE_RATE=44100 # mediciones por SEGUNDO que se hace del sonido
+DEVICE=0
 SILENCIO_UMBRAL=1500
 SILENCIO_SEGUNDOS=2
 _base = os.path.dirname(openwakeword.__file__)
@@ -29,7 +29,9 @@ TIMEOUT=10
 
 mipo_hablando = False
 
-# modelo_whisper = whisper.load_model("small") # Carga el modelo que utilizará: base -> small -> medium...
+
+# os.environ["SDL_AUDIODRIVER"] = "alsa"
+# os.environ["AUDIODEV"] = "hw:1,0"
 pygame.mixer.init() # Inicializa el sistema de audio para poder reproducir más adelante.
 
 def hay_voz(audio_chunk): # audio_chunk son 100ms de audio, un conjunto de números que representa la onda de sonido
