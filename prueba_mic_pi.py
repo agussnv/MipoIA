@@ -54,7 +54,7 @@ def esperar_wake_word():
                 
             prediccion = modelo_wakeword.predict(chunk)
             score = list(prediccion.values())[0]
-            print("SCORE: " + score)
+            print(f"SCORE: {score}")
         
             ahora = time.time()
             if score > WAKE_WORD_UMBRAL and (ahora - ultimo_activado) > COOLDOWN:
