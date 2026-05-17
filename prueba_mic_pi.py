@@ -64,7 +64,7 @@ def esperar_wake_word():
             if score > WAKE_WORD_UMBRAL and (ahora - ultimo_activado) > COOLDOWN:
                 ultimo_activado = ahora
                 print("ACTIVADO")
-                return
+                # return
 
 def escuchar() -> str: # -> str es solamente de tipo informativo para quien lea el documento, no afecta funcionamiento.
     print("Escuchando...")
