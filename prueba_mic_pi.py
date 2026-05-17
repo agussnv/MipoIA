@@ -57,7 +57,7 @@ def esperar_wake_word():
             print(f"SCORE: {score}")
         
             ahora = time.time()
-            if score > WAKE_WORD_UMBRAL and (ahora - ultimo_activado) > COOLDOWN:
+            if score > WAKE_WORD_UMBRAL:
                 ultimo_activado = ahora
                 print("ACTIVADO")
                 return
