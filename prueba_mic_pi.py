@@ -14,7 +14,7 @@ mipo_hablando = False
 
 SAMPLE_RATE=44100 # mediciones por SEGUNDO que se hace del sonido
 DEVICE=0
-SILENCIO_UMBRAL=1500
+SILENCIO_UMBRAL=100
 SILENCIO_SEGUNDOS=2
 TIMEOUT=10
 
