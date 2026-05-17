@@ -5,6 +5,9 @@ import scipy.io.wavfile as wav # Guarda el array de números como un archivo .wa
 import pygame # Para reproducir el sonido la voz. Forma más sencilla de hacerlo con PyGame.
 import tempfile
 
+os.environ["SDL_AUDIODRIVER"] = "alsa"
+os.environ["AUDIODEV"] = "hw:2,0"
+
 pygame.mixer.init() # Inicializa el sistema de audio para poder reproducir más adelante.
 
 mipo_hablando = False
