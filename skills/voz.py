@@ -20,7 +20,8 @@ import tempfile
 
 SAMPLE_RATE=44100 # mediciones por SEGUNDO que se hace del sonido
 DEVICE=0
-SILENCIO_UMBRAL=1500
+CHANNELS=1
+SILENCIO_UMBRAL=100
 SILENCIO_SEGUNDOS=2
 _base = os.path.dirname(openwakeword.__file__)
 WAKE_WORD_PATH = os.path.join(_base, "resources", "models", "alexa_v0.1.onnx")
@@ -29,9 +30,8 @@ TIMEOUT=10
 
 mipo_hablando = False
 
-
-# os.environ["SDL_AUDIODRIVER"] = "alsa"
-# os.environ["AUDIODEV"] = "hw:1,0"
+os.environ["SDL_AUDIODRIVER"] = "alsa"
+os.environ["AUDIODEV"] = "hw:2,0"
 pygame.mixer.init() # Inicializa el sistema de audio para poder reproducir más adelante.
 
 def hay_voz(audio_chunk): # audio_chunk son 100ms de audio, un conjunto de números que representa la onda de sonido
@@ -79,7 +79,7 @@ def escuchar() -> str: # -> str es solamente de tipo informativo para quien lea 
     segundos_timeout = 0
     chunk_size = int(SAMPLE_RATE*0.1) # Tamaño de muestras que leemos por 100ms (1600 muestras)
     
-    with sd.InputStream(samplerate=SAMPLE_RATE, channels=1, dtype=np.int16) as stream: # abre el micrófono como un stream continuo. No se cierra hasta que no salgamos del bloque (with)
+    with sd.InputStream(samplerate=SAMPLE_RATE, channels=CHANNELS, dtype=np.int16, device=DEVICE) as stream: # abre el micrófono como un stream continuo. No se cierra hasta que no salgamos del bloque (with)
         while True:
             chunk, _ = stream.read(chunk_size) # devuelve 2 cosas, el audio (100ms) y estado overflow (si el buffer se llenó). chunk, _ significa: guardame el primer valor en chunk, el segundo no me interesa
             
