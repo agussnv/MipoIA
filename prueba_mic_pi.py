@@ -46,13 +46,14 @@ def esperar_wake_word():
         channels=CHANNELS,
         dtype=np.int16,
         device=DEVICE,
-        blocksize=1280
+        blocksize=2756
     ) as stream:
         
         while True:
-            chunk, _ = stream.read(1280)
+            chunk, _ = stream.read(2756)
             chunk = chunk.flatten()
             
+            chunk_float = chunk.astype(np.float32)
             chunk_16k = scipy.signal.resample(chunk, 1280).astype(np.int16)
                 
             prediccion = modelo_wakeword.predict(chunk_16k)
@@ -60,7 +61,7 @@ def esperar_wake_word():
             print(f"SCORE: {score}")
         
             ahora = time.time()
-            if score > WAKE_WORD_UMBRAL:
+            if score > WAKE_WORD_UMBRAL and (ahora - ultimo_activado) > COOLDOWN:
                 ultimo_activado = ahora
                 print("ACTIVADO")
                 return
