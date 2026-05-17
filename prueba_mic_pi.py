@@ -2,6 +2,7 @@ import os
 import sounddevice as sd # Captura el sonido del microfono y lo reproduce
 import numpy as np # Librería matemática para arrays. Cada número es la amplitud de onda
 import scipy.io.wavfile as wav # Guarda el array de números como un archivo .wav
+import scipy.signal
 import pygame # Para reproducir el sonido la voz. Forma más sencilla de hacerlo con PyGame.
 import openwakeword # para activarse mediante la wake word
 import time
@@ -51,8 +52,10 @@ def esperar_wake_word():
         while True:
             chunk, _ = stream.read(1280)
             chunk = chunk.flatten()
+            
+            chunk_16k = scipy.signal.resample(chunk, 1280).astype(np.int16)
                 
-            prediccion = modelo_wakeword.predict(chunk)
+            prediccion = modelo_wakeword.predict(chunk_16k)
             score = list(prediccion.values())[0]
             print(f"SCORE: {score}")
         
